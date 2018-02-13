@@ -1,53 +1,69 @@
-type human_attr_nature =
-  | Good
-  | Neutral
-  | Bad
 
-type human_attr = {
-  age: int;
-  nature: human_attr_nature;
-}
+module Entity = struct
+  module Human = struct
+    type nature =
+      | Good
+      | Neutral
+      | Bad
 
-type tree_attr_breed =
-  | Pine
-  | Birch
+    type t = {
+      age: int;
+      nature: nature;
+    }
 
-type tree_attr = {
-  age: int;
-  breed: tree_attr_breed;
-}
+    let create ~age ~nature =
+      { age;
+        nature;
+      }
 
-type entity =
-  | Human of human_attr
-  | Tree of tree_attr
+    let fg human =
+      match human.nature with
+        | Good -> Notty.A.white
+        | Neutral -> Notty.A.yellow
+        | Bad -> Notty.A.red
+  end
 
-let create_human ~age ~nature =
-  { age;
-    nature;
+  module Tree = struct
+    type breed =
+      | Pine
+      | Birch
+
+    type t = {
+      age: int;
+      breed: breed;
+    }
+
+    let create ~age ~breed =
+      { age;
+        breed;
+      }
+
+    let fg tree =
+      match tree.breed with
+        | Pine -> Notty.A.green
+        | Birch -> Notty.A.lightgreen
+  end
+
+  type entity =
+    | Human of Human.t
+    | Tree of Tree.t
+
+  let entity_fg e = function
+    | Human e -> Human.fg e
+    | Tree e -> Tree.fg e
+end
+
+module World = struct
+  type coord = (int * int)
+
+  type t = {
+    map : coord List.t
   }
 
-let create_tree ~age ~breed =
-  { age;
-    breed;
-  }
 
-let tree_fg tree =
-    match tree.breed with
-      | Pine -> Notty.A.green
-      | Birch -> Notty.A.lightgreen
-
-let human_fg human =
-    match human.nature with
-      | Good -> Notty.A.white
-      | Neutral -> Notty.A.yellow
-      | Bad -> Notty.A.red
-
-let entity_fg e = function
-  | Human e -> human_fg e
-  | Tree e -> tree_fg e
 
 let myhuman =
-  create_human ~age:1 ~nature:Good
+  Entity.Human.create ~age:1 ~nature:Good
 
 let mytree =
-  create_tree ~age:1000 ~breed:Pine
+  Entity.Tree.create ~age:1000 ~breed:Pine
