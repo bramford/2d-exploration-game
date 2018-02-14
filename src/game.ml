@@ -1,3 +1,4 @@
+open Core
 
 module Entity = struct
   module Human = struct
@@ -60,7 +61,23 @@ module World = struct
     map : coord List.t
   }
 
+  let create w h =
+    let rec coords_of_bounds x x_max y y_max l =
+      let l = if y <= y_max then
+        coords_of_bounds x x_max (y + 1) y_max ((x, y) :: l)
+      else l in
+      let l = if x <= x_max then
+        coords_of_bounds (x + 1) x_max y y_max ((x, y) :: l)
+      else l in
+      l
+    in
+    let coords = coords_of_bounds 0 w 0 h [] in
+    { map = coords;
+    }
+end
 
+let myworld =
+  World.create 64 64
 
 let myhuman =
   Entity.Human.create ~age:1 ~nature:Good
