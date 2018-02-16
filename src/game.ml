@@ -29,6 +29,8 @@ module Entity = struct
       | 2 -> Bad
       | _ -> Good
 
+    let burn e = false
+
     let random =
       let nature =
         Random.int 100 mod 2
@@ -65,6 +67,8 @@ module Entity = struct
       | 1 -> Birch
       | _ -> Pine
 
+    let burn e = true
+
     let random =
       let breed =
         Random.int 100 mod 1
@@ -83,6 +87,10 @@ module Entity = struct
   let fg e = function
     | Human e -> Human.fg e
     | Tree e -> Tree.fg e
+
+  let burn e = function
+    | Human e -> Human.burn e
+    | Tree e -> Tree.burn e
 
   let random =
     match Random.int 10 with
