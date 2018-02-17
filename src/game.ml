@@ -131,12 +131,14 @@ module World = struct
       l
     in
     let gen_entities c =
-      let rec gen_entities_list c l =
-        match l with
-        | [] | [_] -> l
-        | hd :: tl -> gen_entities_list (c - 1) (Entity.random :: l)
+      let rec gen_entities_list n n_max l =
+        let l =
+          if n <= n_max then
+            gen_entities_list (n + 1) n_max (Entity.random :: l)
+          else l in
+        l
       in
-      gen_entities_list c []
+      gen_entities_list 0 c []
     in
     let coords = coords_of_bounds 0 w 0 h [] in
     let entities = gen_entities (w * h) in
