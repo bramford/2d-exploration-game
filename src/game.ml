@@ -1,4 +1,5 @@
 open Core
+open Notty.Infix
 
 module Entity = struct
   module Human = struct
@@ -12,6 +13,8 @@ module Entity = struct
       nature: nature;
     }
 
+    let symbol = "t"
+
     let create ~age ~nature =
       { age;
         nature;
@@ -22,6 +25,9 @@ module Entity = struct
         | Good -> Notty.A.white
         | Neutral -> Notty.A.yellow
         | Bad -> Notty.A.red
+
+    let draw r =
+      Notty.I.string (Notty.A.fg (fg r)) symbol
 
     let nature_of_int i =
       match i with
@@ -52,6 +58,8 @@ module Entity = struct
       breed: breed;
     }
 
+    let symbol = "t"
+
     let create ~age ~breed =
       { age;
         breed;
@@ -61,6 +69,9 @@ module Entity = struct
       match r.breed with
         | Pine -> Notty.A.green
         | Birch -> Notty.A.lightgreen
+
+    let draw r =
+      Notty.I.string (Notty.A.fg (fg r)) symbol
 
     let breed_of_int i =
       match i with
@@ -84,15 +95,15 @@ module Entity = struct
     | Human of Human.t
     | Tree of Tree.t
 
-  let fg t = function
+  let fg = function
     | Human r -> Human.fg r
     | Tree r -> Tree.fg r
 
-  let burn t = function
+  let burn = function
     | Human r -> Human.burn r
     | Tree r -> Tree.burn r
 
-  let draw t = function
+  let draw = function
     | Human r -> Human.draw r
     | Tree r -> Tree.draw r
 
@@ -101,7 +112,6 @@ module Entity = struct
     | 0 -> Human Human.random
     | _ -> Tree Tree.random
 
-
   let gen_list i =
     let rec gl i l =
       match l with
@@ -109,6 +119,16 @@ module Entity = struct
       | hd :: tl -> gl (i - 1) (random :: l)
     in
     gl i []
+
+  let draw_list l =
+    let rec d l i =
+      match l with
+      | [] | [_] -> i
+      | hd :: tl ->
+        let hd_image = draw hd in
+        d tl (i <|> hd_image)
+    in
+    d l Notty.I.empty
 end
 
 module World = struct
@@ -134,7 +154,14 @@ module World = struct
     { coords = coords;
       entities = entities;
     }
+
+  let draw w =
+    Entity.draw_list w
+
+  let render d =
+    Notty_unix.output_image d
 end
 
-let myworld =
-  World.create 64 64
+let world = World.create 64 64;;
+let () =
+  World.draw world.entities |> World.render
