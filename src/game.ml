@@ -146,7 +146,7 @@ module World = struct
       in
       gen_entities_list 0 c []
     in
-    let coords = coords_of_bounds 0 w 0 h [] in
+    let coords = List.rev (coords_of_bounds 0 w 0 h []) in
     let entities = gen_entities (w * h) in
     { coords = coords;
       entities = entities;
