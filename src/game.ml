@@ -1,6 +1,8 @@
+(*
 #require "notty";;
 #require "notty.unix";;
 #require "notty.top";;
+*)
 
 open Notty.Infix
 
@@ -123,7 +125,6 @@ module World = struct
     coords : coord list;
     entities : Entity.t list;
   }
-
 
   let create w h =
     let rec coords_of_bounds x x_max y y_max l =
