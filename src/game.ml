@@ -17,8 +17,8 @@ module Entity = struct
         nature;
       }
 
-    let fg human =
-      match human.nature with
+    let fg r =
+      match r.nature with
         | Good -> Notty.A.white
         | Neutral -> Notty.A.yellow
         | Bad -> Notty.A.red
@@ -29,7 +29,7 @@ module Entity = struct
       | 2 -> Bad
       | _ -> Good
 
-    let burn e = false
+    let burn r = false
 
     let random =
       let nature =
@@ -57,8 +57,8 @@ module Entity = struct
         breed;
       }
 
-    let fg tree =
-      match tree.breed with
+    let fg r =
+      match r.breed with
         | Pine -> Notty.A.green
         | Birch -> Notty.A.lightgreen
 
@@ -84,13 +84,17 @@ module Entity = struct
     | Human of Human.t
     | Tree of Tree.t
 
-  let fg e = function
-    | Human e -> Human.fg e
-    | Tree e -> Tree.fg e
+  let fg t = function
+    | Human r -> Human.fg r
+    | Tree r -> Tree.fg r
 
-  let burn e = function
-    | Human e -> Human.burn e
-    | Tree e -> Tree.burn e
+  let burn t = function
+    | Human r -> Human.burn r
+    | Tree r -> Tree.burn r
+
+  let draw t = function
+    | Human r -> Human.draw r
+    | Tree r -> Tree.draw r
 
   let random =
     match Random.int 10 with
