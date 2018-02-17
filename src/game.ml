@@ -42,10 +42,10 @@ module Entity = struct
 
     let random =
       let nature =
-        Random.int 100 mod 2
+        Random.int 3
         |> nature_of_int
       in
-      let age = Random.int 20 + 13 in
+      let age = (Random.int 20) + 13 in
       create
         ~age:age
         ~nature:nature
@@ -85,10 +85,10 @@ module Entity = struct
 
     let random =
       let breed =
-        Random.int 100 mod 1
+        Random.int 1
         |> breed_of_int
       in
-      let age = Random.int 1000 + 1 in
+      let age = (Random.int 100) + 1 in
       create
         ~age:age
         ~breed:breed
@@ -124,23 +124,25 @@ module World = struct
     entities : Entity.t list;
   }
 
+
   let create w h =
     let rec coords_of_bounds x x_max y y_max l =
-      let l = if y <= y_max then
-        coords_of_bounds x x_max (y + 1) y_max ((x, y) :: l)
-      else l in
-      let l = if x <= x_max then
-        coords_of_bounds (x + 1) x_max y y_max ((x, y) :: l)
-      else l in
+      let l =
+        if x > x_max then
+          l
+        else
+          if y > y_max then
+            coords_of_bounds (x + 1) x_max 0 y_max ((x, y) :: l)
+          else
+            coords_of_bounds x x_max (y + 1) y_max ((x, y) :: l)
+      in
       l
     in
     let gen_entities c =
       let rec gen_entities_list n n_max l =
-        let l =
-          if n <= n_max then
-            gen_entities_list (n + 1) n_max (Entity.random :: l)
-          else l in
-        l
+        if n <= n_max then
+          gen_entities_list (n + 1) n_max (Entity.random :: l)
+        else l
       in
       gen_entities_list 0 c []
     in
@@ -167,6 +169,6 @@ module World = struct
     Notty_unix.output_image d
 end
 
-let world = World.create 64 64 ;;
+let world = World.create 128 128 ;;
 let draw = World.draw world ;;
 World.render draw
