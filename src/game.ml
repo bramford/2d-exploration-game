@@ -16,7 +16,7 @@ module Entity = struct
       nature: nature;
     }
 
-    let symbol = "t"
+    let symbol = "@"
 
     let create ~age ~nature =
       { age;
