@@ -1,0 +1,6 @@
+#!/bin/sh
+curdir=$PWD
+cd src \
+&& ocamlbuild -use-ocamlfind -pkg notty.unix -pkg notty game.native
+cd $PWD
+echo "Run './src/game.native' to play"
