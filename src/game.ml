@@ -1,4 +1,3 @@
-open Core
 open Notty.Infix
 
 module Entity = struct
