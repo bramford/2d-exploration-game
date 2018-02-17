@@ -1,3 +1,7 @@
+#require "notty";;
+#require "notty.unix";;
+#require "notty.top";;
+
 open Notty.Infix
 
 module Entity = struct
