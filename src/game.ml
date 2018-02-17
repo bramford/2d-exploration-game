@@ -111,24 +111,6 @@ module Entity = struct
     match Random.int 10 with
     | 0 -> Human Human.random
     | _ -> Tree Tree.random
-
-  let gen_list i =
-    let rec gl i l =
-      match l with
-      | [] | [_] -> l
-      | hd :: tl -> gl (i - 1) (random :: l)
-    in
-    gl i []
-
-  let draw_list l =
-    let rec d l i =
-      match l with
-      | [] | [_] -> i
-      | hd :: tl ->
-        let hd_image = draw hd in
-        d tl (i <|> hd_image)
-    in
-    d l Notty.I.empty
 end
 
 module World = struct
@@ -149,19 +131,38 @@ module World = struct
       else l in
       l
     in
+    let gen_entities c =
+      let rec gen_entities_list c l =
+        match l with
+        | [] | [_] -> l
+        | hd :: tl -> gen_entities_list (c - 1) (Entity.random :: l)
+      in
+      gen_entities_list c []
+    in
     let coords = coords_of_bounds 0 w 0 h [] in
-    let entities = Entity.gen_list (w * h) in
+    let entities = gen_entities (w * h) in
     { coords = coords;
       entities = entities;
     }
 
   let draw w =
-    Entity.draw_list w
+    let draw_entities el =
+      let rec d el i =
+        match el with
+        | [] | [_] -> i
+        | hd :: tl ->
+          let hd_image = Entity.draw hd in
+          d tl (i <|> hd_image)
+      in
+      d el Notty.I.empty
+    in
+    draw_entities w.entities
 
   let render d =
     Notty_unix.output_image d
 end
 
-let world = World.create 64 64;;
 let () =
-  World.draw world.entities |> World.render
+  World.create 64 64
+  |> World.draw
+  |> World.render
