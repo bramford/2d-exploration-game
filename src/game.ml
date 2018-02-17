@@ -168,7 +168,13 @@ module World = struct
   let render d =
     Notty_unix.output_image d
 end
+;;
 
-let world = World.create 128 128 ;;
-let draw = World.draw world ;;
+Random.self_init ();;
+let terminal_size = Notty_unix.Term.size (Notty_unix.Term.create ());;
+let world =
+  let (x,y) = terminal_size in
+  World.create x y
+;;
+let draw = World.draw world;;
 World.render draw
