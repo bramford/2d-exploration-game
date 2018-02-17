@@ -163,7 +163,6 @@ module World = struct
     Notty_unix.output_image d
 end
 
-let () =
-  World.create 64 64
-  |> World.draw
-  |> World.render
+let world = World.create 64 64 ;;
+let draw = World.draw world ;;
+World.render draw
