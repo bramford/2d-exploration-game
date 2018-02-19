@@ -35,19 +35,16 @@ module Entity = struct
       Notty.I.string (Notty.A.fg (fg r)) symbol
 
     let nature_of_int i =
-      match i with
+      match i mod 2 with
       | 1 -> Neutral
       | 2 -> Bad
       | _ -> Good
 
     let burn r = false
 
-    let random =
-      let nature =
-        Random.int 3
-        |> nature_of_int
-      in
-      let age = (Random.int 20) + 13 in
+    let random n =
+      let nature = nature_of_int n in
+      let age = n mod 20 + 13 in
       create
         ~age:age
         ~nature:nature
@@ -79,18 +76,15 @@ module Entity = struct
       Notty.I.string (Notty.A.fg (fg r)) symbol
 
     let breed_of_int i =
-      match i with
+      match i mod 1 with
       | 1 -> Birch
       | _ -> Pine
 
     let burn e = true
 
-    let random =
-      let breed =
-        Random.int 1
-        |> breed_of_int
-      in
-      let age = (Random.int 100) + 1 in
+    let random n =
+      let breed = breed_of_int n in
+      let age = n mod 100 + 1 in
       create
         ~age:age
         ~breed:breed
@@ -112,10 +106,10 @@ module Entity = struct
     | Human r -> Human.draw r
     | Tree r -> Tree.draw r
 
-  let random =
+  let random n =
     match Random.int 10 with
-    | 0 -> Human Human.random
-    | _ -> Tree Tree.random
+    | 0 -> Human (Human.random n)
+    | _ -> Tree (Tree.random n)
 end
 
 module World = struct
@@ -133,9 +127,9 @@ module World = struct
           l
         else
           if y > y_max then
-            create_coord_entities (x + 1) x_max 0 y_max (((x, y), Entity.random) :: l)
+            create_coord_entities (x + 1) x_max 0 y_max (((x, y), Entity.random (Random.int 100)) :: l)
           else
-            create_coord_entities x x_max (y + 1) y_max (((x, y), Entity.random) :: l)
+            create_coord_entities x x_max (y + 1) y_max (((x, y), Entity.random (Random.int 100)) :: l)
       in
       l
     in
