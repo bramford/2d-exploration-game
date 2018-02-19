@@ -145,22 +145,11 @@ module World = struct
     }
 
   let draw w =
-    let draw_entities entity_assoc_list =
-      let rec d el i =
-        match el with
-        | [] | [_] -> i
-        | hd :: tl ->
-          let (coord, entity) = hd in
-          let hd_image = Entity.draw entity in
-          let (x, y) = coord in
-          if y == 0 then
-            d tl (i <-> hd_image)
-          else
-            d tl (i <|> hd_image)
-      in
-      d entity_assoc_list Notty.I.empty
-    in
-    draw_entities w.entities
+    let (x,y) = w.size in
+    Notty.I.tabulate x y (fun n m ->
+        let entity = List.assoc (x,y) w.entities in
+        Entity.draw entity
+      )
 
   let render d =
     Notty_unix.output_image d
