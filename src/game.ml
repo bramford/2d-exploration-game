@@ -122,47 +122,43 @@ module World = struct
   type coord = (int * int)
 
   type t = {
-    coords : coord list;
-    entities : Entity.t list;
+    size : (int * int);
+    entities : (coord * Entity.t) list;
   }
 
   let create w h =
-    let rec coords_of_bounds x x_max y y_max l =
+    let rec create_coord_entities x x_max y y_max l =
       let l =
         if x > x_max then
           l
         else
           if y > y_max then
-            coords_of_bounds (x + 1) x_max 0 y_max ((x, y) :: l)
+            create_coord_entities (x + 1) x_max 0 y_max (((x, y), Entity.random) :: l)
           else
-            coords_of_bounds x x_max (y + 1) y_max ((x, y) :: l)
+            create_coord_entities x x_max (y + 1) y_max (((x, y), Entity.random) :: l)
       in
       l
     in
-    let gen_entities c =
-      let rec gen_entities_list n n_max l =
-        if n <= n_max then
-          gen_entities_list (n + 1) n_max (Entity.random :: l)
-        else l
-      in
-      gen_entities_list 0 c []
-    in
-    let coords = List.rev (coords_of_bounds 0 w 0 h []) in
-    let entities = gen_entities (w * h) in
-    { coords = coords;
+    let entities = List.rev (create_coord_entities 0 w 0 h []) in
+    { size = (w, h);
       entities = entities;
     }
 
   let draw w =
-    let draw_entities el =
+    let draw_entities entity_assoc_list =
       let rec d el i =
         match el with
         | [] | [_] -> i
         | hd :: tl ->
-          let hd_image = Entity.draw hd in
-          d tl (i <|> hd_image)
+          let (coord, entity) = hd in
+          let hd_image = Entity.draw entity in
+          let (x, y) = coord in
+          if y == 0 then
+            d tl (i <-> hd_image)
+          else
+            d tl (i <|> hd_image)
       in
-      d el Notty.I.empty
+      d entity_assoc_list Notty.I.empty
     in
     draw_entities w.entities
 
