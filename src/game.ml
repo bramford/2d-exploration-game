@@ -35,16 +35,17 @@ module Entity = struct
       Notty.I.string (Notty.A.fg (fg r)) symbol
 
     let nature_of_int i =
-      match i mod 2 with
-      | 1 -> Neutral
+      let m = i mod 3 in
+      match m with
+      | 1 -> Good
       | 2 -> Bad
-      | _ -> Good
+      | _ -> Neutral
 
     let burn r = false
 
     let random n =
       let nature = nature_of_int n in
-      let age = n mod 20 + 13 in
+      let age = (n mod 45) + 13 in
       create
         ~age:age
         ~nature:nature
@@ -70,13 +71,14 @@ module Entity = struct
     let fg r =
       match r.breed with
         | Pine -> Notty.A.green
-        | Birch -> Notty.A.lightgreen
+        | Birch -> Notty.A.cyan
 
     let draw r =
       Notty.I.string (Notty.A.fg (fg r)) symbol
 
     let breed_of_int i =
-      match i mod 1 with
+      let m = i mod 3 in
+      match m with
       | 1 -> Birch
       | _ -> Pine
 
@@ -107,7 +109,8 @@ module Entity = struct
     | Tree r -> Tree.draw r
 
   let random n =
-    match Random.int 10 with
+    let m = n mod 100 in
+    match m with
     | 0 -> Human (Human.random n)
     | _ -> Tree (Tree.random n)
 end
@@ -127,9 +130,9 @@ module World = struct
           l
         else
           if y > y_max then
-            create_coord_entities (x + 1) x_max 0 y_max (((x, y), Entity.random (Random.int 100)) :: l)
+            create_coord_entities (x + 1) x_max 0 y_max (((x, y), Entity.random (Random.int 200)) :: l)
           else
-            create_coord_entities x x_max (y + 1) y_max (((x, y), Entity.random (Random.int 100)) :: l)
+            create_coord_entities x x_max (y + 1) y_max (((x, y), Entity.random (Random.int 200)) :: l)
       in
       l
     in
