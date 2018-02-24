@@ -144,7 +144,7 @@ module World = struct
   let draw w =
     let (x,y) = w.size in
     Notty.I.tabulate x y (fun n m ->
-        let entity = List.assoc (x,y) w.entities in
+        let entity = List.assoc (n,m) w.entities in
         Entity.draw entity
       )
 
