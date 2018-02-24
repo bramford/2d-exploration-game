@@ -28,18 +28,18 @@ module Entity = struct
     let to_string r =
       let string_of_nature nature =
         match nature with
-          | Good -> "Good"
-          | Neutral -> "Neutral"
-          | Bad -> "Bad"
+        | Good -> "Good"
+        | Neutral -> "Neutral"
+        | Bad -> "Bad"
       in
       "Human {nature: " ^ (string_of_nature r.nature) ^ ", age: " ^  (string_of_int r.age) ^ "}"
     ;;
 
     let fg r =
       match r.nature with
-        | Good -> Notty.A.white
-        | Neutral -> Notty.A.yellow
-        | Bad -> Notty.A.red
+      | Good -> Notty.A.white
+      | Neutral -> Notty.A.yellow
+      | Bad -> Notty.A.red
 
     let draw r =
       Notty.I.string (Notty.A.fg (fg r)) symbol
@@ -81,16 +81,16 @@ module Entity = struct
     let to_string r =
       let string_of_breed breed =
         match breed with
-          | Pine -> "Pine"
-          | Birch -> "Birch"
+        | Pine -> "Pine"
+        | Birch -> "Birch"
       in
       "Tree {breed: " ^ (string_of_breed r.breed) ^ ", age: " ^  (string_of_int r.age) ^ "}"
     ;;
 
     let fg r =
       match r.breed with
-        | Pine -> Notty.A.green
-        | Birch -> Notty.A.cyan
+      | Pine -> Notty.A.green
+      | Birch -> Notty.A.cyan
 
     let draw r =
       Notty.I.string (Notty.A.fg (fg r)) symbol
