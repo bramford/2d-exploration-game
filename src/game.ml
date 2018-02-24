@@ -116,8 +116,9 @@ module Entity = struct
     | Tree of Tree.t
 
   let to_string = function
-    | Human r -> Human.to_string r
-    | Tree r -> Tree.to_string r
+    | Some Human r -> Human.to_string r
+    | Some Tree r -> Tree.to_string r
+    | None -> "{}"
 
   let fg = function
     | Human r -> Human.fg r
@@ -128,14 +129,17 @@ module Entity = struct
     | Tree r -> Tree.burn r
 
   let draw = function
-    | Human r -> Human.draw r
-    | Tree r -> Tree.draw r
+    | Some Human r -> Human.draw r
+    | Some Tree r -> Tree.draw r
+    | None -> Notty.I.char Notty.A.empty ' ' 1 1
 
   let random n =
-    let m = n mod 100 in
-    match m with
-    | 0 -> Human (Human.random n)
-    | _ -> Tree (Tree.random n)
+    let m = n mod 1000 in
+    if m == 0 then
+      Some (Human (Human.random n))
+    else if m > 1 && m < 100 then
+      Some (Tree (Tree.random n))
+    else None
 end
 
 module World = struct
@@ -143,7 +147,7 @@ module World = struct
 
   type t = {
     size : (int * int);
-    entities : (coord * Entity.t) list;
+    entities : (coord * Entity.t option) list;
   }
 
   let create w h =
@@ -153,9 +157,9 @@ module World = struct
           l
         else
           if y > y_max then
-            create_coord_entities (x + 1) x_max 0 y_max (((x, y), Entity.random (Random.int 200)) :: l)
+            create_coord_entities (x + 1) x_max 0 y_max (((x, y), Entity.random (Random.int 2000)) :: l)
           else
-            create_coord_entities x x_max (y + 1) y_max (((x, y), Entity.random (Random.int 200)) :: l)
+            create_coord_entities x x_max (y + 1) y_max (((x, y), Entity.random (Random.int 2000)) :: l)
       in
       l
     in
