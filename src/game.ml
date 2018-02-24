@@ -25,6 +25,16 @@ module Entity = struct
         nature;
       }
 
+    let to_string r =
+      let string_of_nature nature =
+        match nature with
+          | Good -> "Good"
+          | Neutral -> "Neutral"
+          | Bad -> "Bad"
+      in
+      "Human {nature: " ^ (string_of_nature r.nature) ^ ", age: " ^  (string_of_int r.age) ^ "}"
+    ;;
+
     let fg r =
       match r.nature with
         | Good -> Notty.A.white
@@ -68,6 +78,15 @@ module Entity = struct
         breed;
       }
 
+    let to_string r =
+      let string_of_breed breed =
+        match breed with
+          | Pine -> "Pine"
+          | Birch -> "Birch"
+      in
+      "Tree {breed: " ^ (string_of_breed r.breed) ^ ", age: " ^  (string_of_int r.age) ^ "}"
+    ;;
+
     let fg r =
       match r.breed with
         | Pine -> Notty.A.green
@@ -95,6 +114,10 @@ module Entity = struct
   type t =
     | Human of Human.t
     | Tree of Tree.t
+
+  let to_string = function
+    | Human r -> Human.to_string r
+    | Tree r -> Tree.to_string r
 
   let fg = function
     | Human r -> Human.fg r
@@ -147,6 +170,15 @@ module World = struct
         let entity = List.assoc (n,m) w.entities in
         Entity.draw entity
       )
+
+  let print w =
+    List.iter
+      (fun ec ->
+        let (c,e) = ec in
+        let (x,y) = c in
+        Printf.printf "(%d,%d) = %s\n" x y (Entity.to_string e);
+      )
+      w.entities
 
   let render d =
     Notty_unix.output_image d
