@@ -142,6 +142,33 @@ module Entity = struct
     else None
 end
 
+module Item = struct
+  module Rock = struct
+    type t = {
+      weight : int;
+    }
+
+    let create ~weight =
+      { weight;
+      }
+
+    let symbol = "."
+
+    let fg r = Notty.A.white
+
+    let draw r =
+      Notty.I.string (Notty.A.fg (fg r)) symbol
+
+    let burn r = false
+  end
+
+  type t =
+    | Rock of Rock.t
+
+  let symbol = function
+    | Rock r -> Rock.symbol
+end
+
 module World = struct
   type coord = (int * int)
 
