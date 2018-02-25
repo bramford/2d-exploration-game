@@ -180,11 +180,35 @@ module Item = struct
     | Some Rock r -> Rock.to_string r
     | None -> "{}"
 
-  let random n =
-    let m = n mod 1000 in
+  let random =
+    let m = Random.int 1000 in
     if m < 11 then
       Some (Rock (Rock.create ~weight:(Random.int 5)))
     else None
+end
+
+module Items = struct
+  type t = Item.t option list
+
+  let random =
+    let rec r n l =
+      if n = 0 then l
+      else r (n - 1) (Item.random :: l)
+    in
+    r (Random.int 2) []
+
+  let draw l =
+    match l with
+    | [] | [_] -> Item.draw None
+    | hd :: tl -> Item.draw hd
+
+  let to_string l =
+    let rec ts l s se =
+      match l with
+      | [] | [_] -> s ^ se
+      | hd :: tl -> ts tl (s ^ (Item.to_string hd)) se
+    in
+    ts l "Items: {" "}\n"
 end
 
 module World = struct
@@ -192,7 +216,7 @@ module World = struct
 
   type node = {
     entity: Entity.t option;
-    item: Item.t option;
+    items: Items.t;
   }
 
   type cell = (coord * node)
@@ -202,9 +226,9 @@ module World = struct
     cells : cell list;
   }
 
-  let node_create ~entity ~item =
+  let node_create ~entity ~items =
     { entity;
-      item;
+      items;
     }
 
   let create w h =
@@ -216,13 +240,13 @@ module World = struct
           if y > y_max then
             let node = node_create
               ~entity:(Entity.random (Random.int 2000))
-              ~item:(Item.random (Random.int 2000))
+              ~items:(Items.random)
             in
             create_cells (x + 1) x_max 0 y_max (((x,y), node) :: l)
           else
             let node = node_create
               ~entity:(Entity.random (Random.int 2000))
-              ~item:(Item.random (Random.int 2000))
+              ~items:(Items.random)
             in
             create_cells x x_max (y + 1) y_max (((x,y), node) :: l)
       in
@@ -239,7 +263,7 @@ module World = struct
         let node = List.assoc (n,m) w.cells in
         match node.entity with
         | Some e -> Entity.draw node.entity
-        | None -> Item.draw node.item
+        | None -> Items.draw node.items
       )
 
   let print w =
@@ -247,7 +271,7 @@ module World = struct
       (fun cell ->
         let (coord,cell) = cell in
         let (x,y) = coord in
-        Printf.printf "(%d,%d) = { %s,%s }\n" x y (Entity.to_string cell.entity) (Item.to_string cell.item);
+        Printf.printf "(%d,%d) = { %s,%s }\n" x y (Entity.to_string cell.entity) (Items.to_string cell.items);
       )
       w.cells
 
