@@ -152,12 +152,16 @@ module Item = struct
       { weight;
       }
 
-    let symbol = "."
+    let symbol = "·"
 
     let fg r = Notty.A.white
 
     let draw r =
       Notty.I.string (Notty.A.fg (fg r)) symbol
+
+    let to_string r =
+      "Rock {weight: " ^ (string_of_int(r.weight)) ^ "}"
+    ;;
 
     let burn r = false
   end
@@ -167,49 +171,85 @@ module Item = struct
 
   let symbol = function
     | Rock r -> Rock.symbol
+
+  let draw = function
+    | Some Rock r -> Rock.draw r
+    | None -> Notty.I.char Notty.A.empty ' ' 1 1
+
+  let to_string = function
+    | Some Rock r -> Rock.to_string r
+    | None -> "{}"
+
+  let random n =
+    let m = n mod 1000 in
+    if m < 11 then
+      Some (Rock (Rock.create ~weight:(Random.int 5)))
+    else None
 end
 
 module World = struct
   type coord = (int * int)
 
-  type t = {
-    size : (int * int);
-    entities : (coord * Entity.t option) list;
+  type node = {
+    entity: Entity.t option;
+    item: Item.t option;
   }
 
+  type cell = (coord * node)
+
+  type t = {
+    size : (int * int);
+    cells : cell list;
+  }
+
+  let node_create ~entity ~item =
+    { entity;
+      item;
+    }
+
   let create w h =
-    let rec create_coord_entities x x_max y y_max l =
+    let rec create_cells x x_max y y_max l =
       let l =
         if x > x_max then
           l
         else
           if y > y_max then
-            create_coord_entities (x + 1) x_max 0 y_max (((x, y), Entity.random (Random.int 2000)) :: l)
+            let node = node_create
+              ~entity:(Entity.random (Random.int 2000))
+              ~item:(Item.random (Random.int 2000))
+            in
+            create_cells (x + 1) x_max 0 y_max (((x,y), node) :: l)
           else
-            create_coord_entities x x_max (y + 1) y_max (((x, y), Entity.random (Random.int 2000)) :: l)
+            let node = node_create
+              ~entity:(Entity.random (Random.int 2000))
+              ~item:(Item.random (Random.int 2000))
+            in
+            create_cells x x_max (y + 1) y_max (((x,y), node) :: l)
       in
       l
     in
-    let entities = List.rev (create_coord_entities 0 w 0 h []) in
+    let cells = List.rev (create_cells 0 w 0 h []) in
     { size = (w, h);
-      entities = entities;
+      cells = cells;
     }
 
   let draw w =
     let (x,y) = w.size in
     Notty.I.tabulate x y (fun n m ->
-        let entity = List.assoc (n,m) w.entities in
-        Entity.draw entity
+        let node = List.assoc (n,m) w.cells in
+        match node.entity with
+        | Some e -> Entity.draw node.entity
+        | None -> Item.draw node.item
       )
 
   let print w =
     List.iter
-      (fun ec ->
-        let (c,e) = ec in
-        let (x,y) = c in
-        Printf.printf "(%d,%d) = %s\n" x y (Entity.to_string e);
+      (fun cell ->
+        let (coord,cell) = cell in
+        let (x,y) = coord in
+        Printf.printf "(%d,%d) = { %s,%s }\n" x y (Entity.to_string cell.entity) (Item.to_string cell.item);
       )
-      w.entities
+      w.cells
 
   let render d =
     Notty_unix.output_image d
