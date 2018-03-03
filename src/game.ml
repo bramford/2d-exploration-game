@@ -32,7 +32,7 @@ module Entity = struct
         | Neutral -> "Neutral"
         | Bad -> "Bad"
       in
-      "Human {nature: " ^ (string_of_nature r.nature) ^ ", age: " ^  (string_of_int r.age) ^ "}"
+      "{Human{nature:" ^ (string_of_nature r.nature) ^ ",age:" ^  (string_of_int r.age) ^ "}}"
     ;;
 
     let fg r =
@@ -84,7 +84,7 @@ module Entity = struct
         | Pine -> "Pine"
         | Birch -> "Birch"
       in
-      "Tree {breed: " ^ (string_of_breed r.breed) ^ ", age: " ^  (string_of_int r.age) ^ "}"
+      "{Tree{breed:" ^ (string_of_breed r.breed) ^ ",age:" ^  (string_of_int r.age) ^ "}}"
     ;;
 
     let fg r =
@@ -118,7 +118,7 @@ module Entity = struct
   let to_string = function
     | Some Human r -> Human.to_string r
     | Some Tree r -> Tree.to_string r
-    | None -> "{}"
+    | None -> "None"
 
   let fg = function
     | Human r -> Human.fg r
@@ -178,7 +178,7 @@ module Item = struct
 
   let to_string = function
     | Some Rock r -> Rock.to_string r
-    | None -> "{}"
+    | None -> "None"
 
   let random i =
     if i mod 1000 < 11 then
@@ -202,12 +202,14 @@ module Items = struct
     | hd :: tl -> Item.draw hd
 
   let to_string l =
-    let rec ts l s se =
+    let rec ts acc l s se =
       match l with
       | [] | [_] -> s ^ se
-      | hd :: tl -> ts tl (s ^ (Item.to_string hd)) se
+      | hd :: tl ->
+        let sep = if acc > 0 then "," else "" in
+        ts (acc + 1) tl (s ^ sep ^ (Item.to_string hd)) se
     in
-    ts l "Items: {" "}\n"
+    ts 0 l "[" "]"
 end
 
 module World = struct
@@ -270,7 +272,7 @@ module World = struct
       (fun cell ->
         let (coord,cell) = cell in
         let (x,y) = coord in
-        Printf.printf "(%d,%d) = { %s,%s }\n" x y (Entity.to_string cell.entity) (Items.to_string cell.items);
+        Printf.printf "(%d,%d) = {%s,%s}\n" x y (Entity.to_string cell.entity) (Items.to_string cell.items);
       )
       w.cells
 
