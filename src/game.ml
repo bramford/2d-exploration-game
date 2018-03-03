@@ -180,22 +180,21 @@ module Item = struct
     | Some Rock r -> Rock.to_string r
     | None -> "{}"
 
-  let random =
-    let m = Random.int 1000 in
-    if m < 11 then
-      Some (Rock (Rock.create ~weight:(Random.int 5)))
+  let random i =
+    if i mod 1000 < 11 then
+      Some (Rock (Rock.create ~weight:((Random.int 4) + 1)))
     else None
 end
 
 module Items = struct
   type t = Item.t option list
 
-  let random =
+  let random i =
     let rec r n l =
       if n = 0 then l
-      else r (n - 1) (Item.random :: l)
+      else r (n - 1) ((Item.random i) :: l)
     in
-    r (Random.int 2) []
+    r (Random.int 5) []
 
   let draw l =
     match l with
@@ -240,13 +239,13 @@ module World = struct
           if y > y_max then
             let node = node_create
               ~entity:(Entity.random (Random.int 2000))
-              ~items:(Items.random)
+              ~items:(Items.random (Random.int 2000))
             in
             create_cells (x + 1) x_max 0 y_max (((x,y), node) :: l)
           else
             let node = node_create
               ~entity:(Entity.random (Random.int 2000))
-              ~items:(Items.random)
+              ~items:(Items.random (Random.int 2000))
             in
             create_cells x x_max (y + 1) y_max (((x,y), node) :: l)
       in
