@@ -1,6 +1,3 @@
 #!/bin/sh
-curdir=$PWD
-cd src \
-&& ocamlbuild -use-ocamlfind -pkg notty.unix -pkg notty game.native
-cd $PWD
-echo "Run './src/game.native' to play"
+jbuilder build --root src game.exe
+echo "Run './src/_build/default/game.exe' to play"

@@ -281,11 +281,30 @@ module World = struct
 end
 ;;
 
-Random.self_init ();;
-let terminal_size = Notty_unix.Term.size (Notty_unix.Term.create ());;
-let world =
-  let (x,y) = terminal_size in
-  World.create x y
-;;
-let draw = World.draw world;;
-World.render draw
+
+let run_game mode =
+  let open Core.Command in
+  Random.self_init ();
+  let terminal_size = Notty_unix.Term.size (Notty_unix.Term.create ()) in
+  let world =
+    let (x,y) = terminal_size in
+    World.create x y
+  in
+  match mode with
+  | Some "print_world" ->
+    World.print world
+  | Some _ | None ->
+    let draw = World.draw world in
+    World.render draw
+
+let command =
+  let open Core.Command in
+  let spec = Spec.(empty +> anon (maybe ("mode" %: string))) in
+  basic_spec
+    ~summary:"2D Exploration Game"
+    ~readme:(fun () -> "A simple 2D exploration game that runs exclusively in the terminal")
+    spec
+    (fun mode () -> run_game mode)
+
+let () =
+  Core.Command.run command

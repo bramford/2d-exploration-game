@@ -1,0 +1,5 @@
+(jbuild_version 1)
+
+(executable
+ ((name game)
+  (libraries (core notty notty.unix))))
