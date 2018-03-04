@@ -36,7 +36,6 @@ module Item = struct
 
     let to_string r =
       "Rock{weight:" ^ (string_of_int(r.weight)) ^ "}"
-    ;;
 
     let burn r = false
   end
@@ -118,7 +117,6 @@ module Entity = struct
         | Bad -> "Bad"
       in
       "{Human{nature:" ^ (string_of_nature r.nature) ^ ",age:" ^  (string_of_int r.age) ^ ",player:" ^ (Player.to_string r.player) ^ ",inventory:" ^ (Items.to_string r.inventory) ^ "}}"
-    ;;
 
     let fg r =
       match r.nature with
@@ -172,7 +170,6 @@ module Entity = struct
         | Birch -> "Birch"
       in
       "{Tree{breed:" ^ (string_of_breed r.breed) ^ ",age:" ^  (string_of_int r.age) ^ "}}"
-    ;;
 
     let fg r =
       match r.breed with
@@ -296,7 +293,6 @@ module World = struct
   let render d =
     Notty_unix.output_image d
 end
-;;
 
 
 let run_game mode =
