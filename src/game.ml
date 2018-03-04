@@ -15,6 +15,12 @@ module Player = struct
     match r with
     | Some x -> x.name
     | None -> "None"
+
+  let create ~name =
+    Some ({
+      name;
+    })
+
 end
 
 module Item = struct
@@ -136,13 +142,21 @@ module Entity = struct
 
     let burn r = false
 
+    let is_player r n =
+      match r.player with
+      | Some x ->
+        if (String.equal x.name n) then
+          true
+        else false
+      | _ -> false
+
     let random n =
       let nature = nature_of_int n in
       let age = (n mod 45) + 13 in
       create
         ~age:age
         ~nature:nature
-        ~player:None
+        ~player:(Player.create ~name:"player")
         ~inventory:(Items.random n)
   end
 
@@ -217,6 +231,10 @@ module Entity = struct
     | Some Tree r -> Tree.draw r
     | None -> Notty.I.char Notty.A.empty ' ' 1 1
 
+  let is_player n = function
+    | Some Human r -> Human.is_player r n
+    | _ -> false
+
   let random n =
     let m = n mod 1000 in
     if m == 0 then
@@ -281,6 +299,46 @@ module World = struct
         | None -> Items.draw node.items
       )
 
+  let draw_around_player w n =
+    let rec find_player cells name =
+      match cells with
+      | [] | [_] -> Error "Player cell not found"
+      | hd :: tl ->
+        let (coord,node) = hd in
+        if (Entity.is_player name node.entity) then
+          Ok hd
+        else
+          find_player tl name
+    in
+    let (max_x,max_y) = w.size in
+    let player_cell = find_player w.cells n in
+    match player_cell with
+    | Error s ->
+      Printf.printf "No player found: %s\n" s;
+      exit 1
+    | Ok r ->
+      let (coord,node) = r in
+      let (c_x,c_y) = coord in
+      let diff_x = c_x - 10 in
+      let diff_y = c_y - 10 in
+      let draw_x = if diff_x > 0 then diff_x else 1 in
+      let draw_y = if diff_y > 0 then diff_y else 1 in
+      let rec calc_draw_size axis axis_max default =
+        if axis + default > axis_max then calc_draw_size axis axis_max (default - 1)
+        else default
+      in
+(*
+      Printf.printf "player_cell: (%d,%d)\n" c_x c_y;
+      Printf.printf "diff_x: %d, diff_y: %d\n" diff_x diff_y;
+      Printf.printf "draw_x: %d, draw_y: %d\n" draw_x draw_y;
+*)
+      Notty.I.tabulate (calc_draw_size draw_x max_x 20) (calc_draw_size draw_y max_y 20) (fun n m ->
+          let node = List.assoc ((n + draw_x),(m + draw_y)) w.cells in
+          match node.entity with
+          | Some e -> Entity.draw node.entity
+          | None -> Items.draw node.items
+        )
+
   let print w =
     List.iter
       (fun cell ->
@@ -294,20 +352,17 @@ module World = struct
     Notty_unix.output_image d
 end
 
-
 let run_game mode =
   let open Core.Command in
   Random.self_init ();
-  let terminal_size = Notty_unix.Term.size (Notty_unix.Term.create ()) in
   let world =
-    let (x,y) = terminal_size in
-    World.create x y
+    World.create 128 128
   in
   match mode with
   | Some "print_world" ->
     World.print world
   | Some _ | None ->
-    let draw = World.draw world in
+    let draw = World.draw_around_player world "player" in
     World.render draw
 
 let command =
