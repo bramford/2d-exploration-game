@@ -6,6 +6,87 @@
 
 open Notty.Infix
 
+module Player = struct
+  type t = {
+    name: string;
+  }
+
+  let to_string r =
+    match r with
+    | Some x -> x.name
+    | None -> "None"
+end
+
+module Item = struct
+  module Rock = struct
+    type t = {
+      weight : int;
+    }
+
+    let create ~weight =
+      { weight;
+      }
+
+    let symbol = "·"
+
+    let fg r = Notty.A.white
+
+    let draw r =
+      Notty.I.string (Notty.A.fg (fg r)) symbol
+
+    let to_string r =
+      "Rock{weight:" ^ (string_of_int(r.weight)) ^ "}"
+    ;;
+
+    let burn r = false
+  end
+
+  type t =
+    | Rock of Rock.t
+
+  let symbol = function
+    | Rock r -> Rock.symbol
+
+  let draw = function
+    | Some Rock r -> Rock.draw r
+    | None -> Notty.I.char Notty.A.empty ' ' 1 1
+
+  let to_string = function
+    | Some Rock r -> Rock.to_string r
+    | None -> "None"
+
+  let random i =
+    if i mod 1000 < 11 then
+      Some (Rock (Rock.create ~weight:((Random.int 4) + 1)))
+    else None
+end
+
+module Items = struct
+  type t = Item.t option list
+
+  let random i =
+    let rec r n l =
+      if n = 0 then l
+      else r (n - 1) ((Item.random i) :: l)
+    in
+    r (Random.int 5) []
+
+  let draw l =
+    match l with
+    | [] | [_] -> Item.draw None
+    | hd :: tl -> Item.draw hd
+
+  let to_string l =
+    let rec ts acc l s se =
+      match l with
+      | [] | [_] -> s ^ se
+      | hd :: tl ->
+        let sep = if acc > 0 then "," else "" in
+        ts (acc + 1) tl (s ^ sep ^ (Item.to_string hd)) se
+    in
+    ts 0 l "[" "]"
+end
+
 module Entity = struct
   module Human = struct
     type nature =
@@ -16,13 +97,17 @@ module Entity = struct
     type t = {
       age: int;
       nature: nature;
+      inventory: Items.t;
+      player: Player.t option;
     }
 
     let symbol = "@"
 
-    let create ~age ~nature =
+    let create ~age ~nature ~player ~inventory =
       { age;
         nature;
+        player;
+        inventory;
       }
 
     let to_string r =
@@ -32,7 +117,7 @@ module Entity = struct
         | Neutral -> "Neutral"
         | Bad -> "Bad"
       in
-      "{Human{nature:" ^ (string_of_nature r.nature) ^ ",age:" ^  (string_of_int r.age) ^ "}}"
+      "{Human{nature:" ^ (string_of_nature r.nature) ^ ",age:" ^  (string_of_int r.age) ^ ",player:" ^ (Player.to_string r.player) ^ ",inventory:" ^ (Items.to_string r.inventory) ^ "}}"
     ;;
 
     let fg r =
@@ -59,6 +144,8 @@ module Entity = struct
       create
         ~age:age
         ~nature:nature
+        ~player:None
+        ~inventory:(Items.random n)
   end
 
   module Tree = struct
@@ -140,76 +227,6 @@ module Entity = struct
     else if m > 1 && m < 100 then
       Some (Tree (Tree.random n))
     else None
-end
-
-module Item = struct
-  module Rock = struct
-    type t = {
-      weight : int;
-    }
-
-    let create ~weight =
-      { weight;
-      }
-
-    let symbol = "·"
-
-    let fg r = Notty.A.white
-
-    let draw r =
-      Notty.I.string (Notty.A.fg (fg r)) symbol
-
-    let to_string r =
-      "Rock {weight: " ^ (string_of_int(r.weight)) ^ "}"
-    ;;
-
-    let burn r = false
-  end
-
-  type t =
-    | Rock of Rock.t
-
-  let symbol = function
-    | Rock r -> Rock.symbol
-
-  let draw = function
-    | Some Rock r -> Rock.draw r
-    | None -> Notty.I.char Notty.A.empty ' ' 1 1
-
-  let to_string = function
-    | Some Rock r -> Rock.to_string r
-    | None -> "None"
-
-  let random i =
-    if i mod 1000 < 11 then
-      Some (Rock (Rock.create ~weight:((Random.int 4) + 1)))
-    else None
-end
-
-module Items = struct
-  type t = Item.t option list
-
-  let random i =
-    let rec r n l =
-      if n = 0 then l
-      else r (n - 1) ((Item.random i) :: l)
-    in
-    r (Random.int 5) []
-
-  let draw l =
-    match l with
-    | [] | [_] -> Item.draw None
-    | hd :: tl -> Item.draw hd
-
-  let to_string l =
-    let rec ts acc l s se =
-      match l with
-      | [] | [_] -> s ^ se
-      | hd :: tl ->
-        let sep = if acc > 0 then "," else "" in
-        ts (acc + 1) tl (s ^ sep ^ (Item.to_string hd)) se
-    in
-    ts 0 l "[" "]"
 end
 
 module World = struct
