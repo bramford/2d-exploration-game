@@ -264,6 +264,16 @@ module World = struct
       items;
     }
 
+  let rec find_player cells name =
+    match cells with
+    | [] | [_] -> Error "Player cell not found"
+    | hd :: tl ->
+      let (coord,node) = hd in
+      if (Entity.is_player name node.entity) then
+        Ok hd
+      else
+        find_player tl name
+
   let create w h =
     let rec create_cells x x_max y y_max l =
       let l =
@@ -300,16 +310,6 @@ module World = struct
       )
 
   let draw_around_player w n =
-    let rec find_player cells name =
-      match cells with
-      | [] | [_] -> Error "Player cell not found"
-      | hd :: tl ->
-        let (coord,node) = hd in
-        if (Entity.is_player name node.entity) then
-          Ok hd
-        else
-          find_player tl name
-    in
     let (max_x,max_y) = w.size in
     let player_cell = find_player w.cells n in
     match player_cell with
