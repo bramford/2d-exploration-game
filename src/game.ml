@@ -352,6 +352,14 @@ module World = struct
     Notty_unix.output_image d
 end
 
+let clear_screen () =
+  let open Notty_unix in
+  let (x,y) = (Term.size (Term.create ())) in
+  output_image (Notty.I.void x y)
+
+let game_loop world =
+  World.draw_around_player world "player" |> World.render
+
 let run_game mode =
   let open Core.Command in
   Random.self_init ();
@@ -362,8 +370,9 @@ let run_game mode =
   | Some "print_world" ->
     World.print world
   | Some _ | None ->
-    let draw = World.draw_around_player world "player" in
-    World.render draw
+    clear_screen ();
+    game_loop world;
+;;
 
 let command =
   let open Core.Command in
