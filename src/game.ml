@@ -327,11 +327,6 @@ module World = struct
         if axis + default > axis_max then calc_draw_size axis axis_max (default - 1)
         else default
       in
-(*
-      Printf.printf "player_cell: (%d,%d)\n" c_x c_y;
-      Printf.printf "diff_x: %d, diff_y: %d\n" diff_x diff_y;
-      Printf.printf "draw_x: %d, draw_y: %d\n" draw_x draw_y;
-*)
       Notty.I.tabulate (calc_draw_size draw_x max_x 20) (calc_draw_size draw_y max_y 20) (fun n m ->
           let node = List.assoc ((n + draw_x),(m + draw_y)) w.cells in
           match node.entity with
