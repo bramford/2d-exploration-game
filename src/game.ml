@@ -334,6 +334,57 @@ module World = struct
           | None -> Items.draw node.items
         )
 
+  type move_direction = Left | Right | Up | Down
+
+  let calc_move_coord c d max_x max_y =
+    let (cx,cy) = c in
+    match d with
+    | Right -> if (cx - 1) < 0 then None else Some ((cx - 1),cy)
+    | Left -> if (cx + 1) < max_x then None else Some ((cx + 1),cy)
+    | Up -> if (cy - 1) < 0 then None else Some (cx,(cy - 1))
+    | Down -> if (cy + 1) < max_y then None else Some (cx,(cy + 1))
+
+  let update_cell cell cells w_size =
+    let (coord,node) = cell in
+    let (max_x,max_y) = w_size in
+    let rec uc x y x_max y_max cl =
+      if (x,y) == coord then
+        match cl with
+        | [] | [_] as l -> l
+        | hd :: tl -> cell :: tl
+      else
+        if x > x_max then
+          cl
+        else
+          if y == y_max then
+            uc (x + 1) 0 x_max y_max cl
+          else
+            uc x (y + 1) x_max y_max cl
+    in
+    uc 0 0 max_x max_y cells
+
+  let move_player w p d =
+    let player_cell = find_player w.cells p in
+    match player_cell with
+    | Ok r ->
+      let (pc,pn) = r in
+      let upn = {entity = None;items = pn.items} in
+      let (max_x,max_y) = pc in
+      let dc = calc_move_coord pc d max_x max_y in
+      begin match dc with
+      | None -> w
+      | Some c ->
+        let dn = (List.assoc c w.cells) in
+        begin match dn.entity with
+        | Some _ -> w
+        | None ->
+          let cells = (update_cell (c,dn)  w.cells w.size) in
+          let cells = (update_cell (pc,upn) cells w.size) in
+          {size = w.size;cells = cells}
+        end
+      end
+    | Error s -> w
+
   let print w =
     List.iter
       (fun cell ->
