@@ -7,9 +7,8 @@
 open Notty.Infix
 
 module Player = struct
-  type t = {
-    name: string;
-  }
+  type t =
+    { name: string }
 
   let to_string r =
     match r with
@@ -17,21 +16,17 @@ module Player = struct
     | None -> "None"
 
   let create ~name =
-    Some ({
-      name;
-    })
+    Some ({ name })
 
 end
 
 module Item = struct
   module Rock = struct
-    type t = {
-      weight : int;
-    }
+    type t =
+      { weight : int }
 
     let create ~weight =
-      { weight;
-      }
+      { weight }
 
     let symbol = "·"
 
