@@ -262,24 +262,17 @@ module World = struct
 
   let create w h =
     let rec create_cells x x_max y y_max l =
-      let l =
-        if x > x_max then
-          l
+      if x > x_max then
+        l
+      else
+        if y > y_max then
+          create_cells (x + 1) x_max 0 y_max l
         else
-          if y > y_max then
-            let node = node_create
-              ~entity:(Entity.random (Random.int 2000))
-              ~items:(Items.random (Random.int 2000))
-            in
-            create_cells (x + 1) x_max 0 y_max (((x,y), node) :: l)
-          else
-            let node = node_create
-              ~entity:(Entity.random (Random.int 2000))
-              ~items:(Items.random (Random.int 2000))
-            in
-            create_cells x x_max (y + 1) y_max (((x,y), node) :: l)
-      in
-      l
+          let node = node_create
+            ~entity:(Entity.random (Random.int 2000))
+            ~items:(Items.random (Random.int 2000))
+          in
+          create_cells x x_max (y + 1) y_max (((x,y), node) :: l)
     in
     let cells = List.rev (create_cells 0 w 0 h []) in
     { size = (w, h);
