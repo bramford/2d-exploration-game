@@ -325,8 +325,8 @@ module World = struct
   let calc_move_coord c d max_x max_y =
     let (cx,cy) = c in
     match d with
-    | Right -> if (cx - 1) < 0 then None else Some ((cx - 1),cy)
-    | Left -> if (cx + 1) < max_x then None else Some ((cx + 1),cy)
+    | Right -> if (cx + 1) < max_x then None else Some ((cx + 1),cy)
+    | Left -> if (cx - 1) < 0 then None else Some ((cx - 1),cy)
     | Up -> if (cy - 1) < 0 then None else Some (cx,(cy - 1))
     | Down -> if (cy + 1) < max_y then None else Some (cx,(cy + 1))
 
