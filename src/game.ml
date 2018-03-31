@@ -37,8 +37,6 @@ module Item = struct
 
     let to_string r =
       "Rock{weight:" ^ (string_of_int(r.weight)) ^ "}"
-
-    let burn r = false
   end
 
   type t =
@@ -135,7 +133,6 @@ module Entity = struct
       | 2 -> Bad
       | _ -> Neutral
 
-    let burn r = false
 
     let is_player r n =
       match r.player with
@@ -194,8 +191,6 @@ module Entity = struct
       | 1 -> Birch
       | _ -> Pine
 
-    let burn e = true
-
     let random n =
       let breed = breed_of_int n in
       let age = n mod 100 + 1 in
@@ -216,10 +211,6 @@ module Entity = struct
   let fg = function
     | Human r -> Human.fg r
     | Tree r -> Tree.fg r
-
-  let burn = function
-    | Human r -> Human.burn r
-    | Tree r -> Tree.burn r
 
   let draw = function
     | Some Human r -> Human.draw r
