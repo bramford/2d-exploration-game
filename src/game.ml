@@ -255,6 +255,8 @@ module World = struct
     cells : cell list;
   }
 
+  type move_direction = Left | Right | Up | Down
+
   let node_create ~entity ~items =
     { entity;
       items;
@@ -323,7 +325,6 @@ module World = struct
           | None -> Items.draw node.items
         )
 
-  type move_direction = Left | Right | Up | Down
 
   let calc_move_coord c d max_x max_y =
     let (cx,cy) = c in
