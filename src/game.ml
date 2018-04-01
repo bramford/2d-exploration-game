@@ -134,7 +134,12 @@ module Entity = struct
       | _ -> Neutral
 
 
-    let is_player r n =
+    let is_player r =
+      match r.player with
+      | Some _ -> true
+      | _ -> false
+
+    let is_specific_player r n =
       match r.player with
       | Some x ->
         if (String.equal x.name n) then
@@ -217,8 +222,13 @@ module Entity = struct
     | Some Tree r -> Tree.draw r
     | None -> Notty.I.char Notty.A.empty ' ' 1 1
 
-  let is_player n = function
-    | Some Human r -> Human.is_player r n
+
+  let is_player = function
+    | Some Human r -> Human.is_player r
+    | _ -> false
+
+  let is_specific_player n = function
+    | Some Human r -> Human.is_specific_player r n
     | _ -> false
 
   let random n =
@@ -255,7 +265,7 @@ module World = struct
     | [] | [_] -> Error "Player cell not found"
     | hd :: tl ->
       let (coord,node) = hd in
-      if (Entity.is_player name node.entity) then
+      if (Entity.is_specific_player name node.entity) then
         Ok hd
       else
         find_player tl name
