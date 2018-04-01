@@ -324,23 +324,19 @@ module World = struct
     | Down -> if (cy + 1) < max_y then None else Some (cx,(cy + 1))
 
   let update_cell cell cells w_size =
-    let (coord,node) = cell in
-    let (max_x,max_y) = w_size in
-    let rec uc x y x_max y_max cl =
-      if (x,y) == coord then
-        match cl with
-        | [] | [_] as l -> l
-        | hd :: tl -> cell :: tl
-      else
-        if x > x_max then
-          cl
-        else
-          if y == y_max then
-            uc (x + 1) 0 x_max y_max cl
-          else
-            uc x (y + 1) x_max y_max cl
+    let rec cells_after cell cells =
+      match cells with
+      | [] -> []
+      | hd :: tl ->
+        let ((hdcx,hdcy),_) = hd in
+        let ((c_x,c_y),_) = cell in
+        if hdcx == c_x && hdcy == c_y then
+          tl
+        else cells_after cell tl
     in
-    uc 0 0 max_x max_y cells
+    List.append
+      (cells_after cell (List.rev cells))
+      (cell :: (cells_after cell cells))
 
   let move_player w p d =
     let player_cell = find_player w.cells p in
