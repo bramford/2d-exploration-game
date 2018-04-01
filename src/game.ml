@@ -371,17 +371,18 @@ module World = struct
       end
     | Error s -> w
 
-  let print w =
-    List.iter
-      (fun cell ->
-        let (coord,cell) = cell in
-        let (x,y) = coord in
-        Printf.printf "(%d,%d) = {%s,%s}\n" x y (Entity.to_string cell.entity) (Items.to_string cell.items);
-      )
-      w.cells
 
   let render d =
     Notty_unix.output_image d
+
+  let print_cell c =
+    let (coord,cell) = c in
+    let (x,y) = coord in
+    Printf.eprintf "(%d,%d) = {%s,%s}\n" x y (Entity.to_string cell.entity) (Items.to_string cell.items)
+
+  let print w =
+    Printf.eprintf "Printing world...\n";
+    List.iter print_cell w.cells
 end
 
 let clear_screen () =
