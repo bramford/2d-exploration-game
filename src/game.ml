@@ -305,12 +305,12 @@ module World = struct
     let player_cell = find_player w.cells n in
     match player_cell with
     | Error s ->
-      Printf.printf "No player found: %s\n" s;
+      Printf.eprintf "No player found: %s\n" s;
       exit 1
     | Ok r ->
       let (coord,node) = r in
       let (c_x,c_y) = coord in
-      let diff_x = c_x - 10 in
+      let diff_x = c_x - 20 in
       let diff_y = c_y - 10 in
       let draw_x = if diff_x > 0 then diff_x else 1 in
       let draw_y = if diff_y > 0 then diff_y else 1 in
@@ -318,13 +318,12 @@ module World = struct
         if axis + default > axis_max then calc_draw_size axis axis_max (default - 1)
         else default
       in
-      Notty.I.tabulate (calc_draw_size draw_x max_x 20) (calc_draw_size draw_y max_y 20) (fun n m ->
+      Notty.I.tabulate (calc_draw_size draw_x max_x 40) (calc_draw_size draw_y max_y 20) (fun n m ->
           let node = List.assoc ((n + draw_x),(m + draw_y)) w.cells in
           match node.entity with
           | Some e -> Entity.draw node.entity
           | None -> Items.draw node.items
         )
-
 
   let calc_move_coord c d max_x max_y =
     let (cx,cy) = c in
