@@ -373,8 +373,17 @@ module World = struct
       Printf.eprintf "No player found: %s\n" s;
       w
 
-  let render d =
-    Notty_unix.output_image d
+  let render t wi =
+    let (fdi,fdo) = Notty_unix.Term.fds t in
+    let oc = Unix.out_channel_of_descr fdo in
+    let (term_x,term_y) = Notty_unix.Term.size t in
+    let image_x = Notty.I.width wi in
+    let image_y = Notty.I.height wi in
+    let pad_x_each_side = (term_x - image_x) / 2 in
+    let pad_y_each_side = (term_y - image_y) / 2 in
+    let image = Notty.I.pad ~l:pad_x_each_side ~r:pad_x_each_side ~t:pad_y_each_side ~b:pad_y_each_side wi in
+    Notty_unix.output_image ~fd:oc image;
+    flush oc
 
   let print_cell c =
     let (coord,cell) = c in
