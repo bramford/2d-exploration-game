@@ -133,6 +133,10 @@ module Entity = struct
       | 2 -> Bad
       | _ -> Neutral
 
+    let make_player r n =
+      match r.player with
+      | Some p -> Error "Already a player"
+      | _ -> Ok (create ~age:r.age ~nature:r.nature ~player:(Player.create ~name:n) ~inventory:r.inventory)
 
     let is_player r =
       match r.player with
@@ -153,7 +157,7 @@ module Entity = struct
       create
         ~age:age
         ~nature:nature
-        ~player:(Player.create ~name:"player")
+        ~player:None
         ~inventory:(Items.random n)
   end
 
@@ -222,6 +226,17 @@ module Entity = struct
     | Some Tree r -> Tree.draw r
     | None -> Notty.I.char Notty.A.empty ' ' 1 1
 
+  let is_human = function
+    | Some Human r -> true
+    | _ -> false
+
+  let make_player n = function
+    | Some Human r ->
+      begin match (Human.make_player r n) with
+      | Ok h -> Ok (Human h)
+      | Error s -> Error s
+      end
+    | _ -> Error "Can't be a player"
 
   let is_player = function
     | Some Human r -> Human.is_player r
@@ -373,6 +388,29 @@ module World = struct
       Printf.eprintf "No player found: %s\n" s;
       w
 
+  let add_player w p =
+    let rec find_humans cells humans =
+      match cells with
+      | [] -> humans
+      | hd :: tl ->
+        let (_,node) = hd in
+        if (Entity.is_human node.entity) && (not (Entity.is_player node.entity)) then
+          find_humans tl (hd :: humans)
+        else
+          find_humans tl humans
+    in
+    let humans = find_humans w.cells [] in
+    if List.length humans < 1 then
+      Error "No non-player humans found"
+    else
+      let (c,n) = List.nth humans (Random.int (List.length humans)) in
+      match Entity.make_player p n.entity with
+      | Ok ne ->
+        let nn = {entity = Some ne; items = n.items;} in
+        let cells = (update_cell (c,nn) w.cells w.size ) in
+        Ok {size = w.size;cells = cells}
+      | Error s -> Error s
+
   let render t wi =
     let (fdi,fdo) = Notty_unix.Term.fds t in
     let oc = Unix.out_channel_of_descr fdo in
@@ -425,8 +463,13 @@ let game_loop world =
 let run_game mode =
   let open Core.Command in
   Random.self_init ();
+  let world = World.create 128 128 in
   let world =
-    World.create 128 128
+    match World.add_player world "player" with
+    | Ok w -> w
+    | Error s ->
+      Printf.eprintf "ERROR: %s\n" s;
+      exit 1
   in
   match mode with
   | Some "print_world" ->
