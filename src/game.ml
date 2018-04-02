@@ -364,13 +364,15 @@ module World = struct
         begin match dn.entity with
         | Some _ -> w
         | None ->
-          let cells = (update_cell (c,dn)  w.cells w.size) in
+          let udn = {entity = pn.entity;items = dn.items} in
+          let cells = (update_cell (c,udn)  w.cells w.size) in
           let cells = (update_cell (pc,upn) cells w.size) in
           {size = w.size;cells = cells}
         end
       end
-    | Error s -> w
-
+    | Error s ->
+      Printf.eprintf "No player found: %s\n" s;
+      w
 
   let render d =
     Notty_unix.output_image d
