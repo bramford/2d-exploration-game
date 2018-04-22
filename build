@@ -1,3 +1,4 @@
 #!/bin/sh
+jbuilder external-lib-deps --root src game.exe | sed -r -e 's/^\-\ //g;s/(.+)\..+/\1/g' | uniq | tail +2 | xargs opam install -y
 jbuilder build --root src game.exe
 echo "Run './src/_build/default/game.exe' to play"
