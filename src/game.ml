@@ -3,9 +3,6 @@
 #require "notty.unix";;
 #require "notty.top";;
 *)
-
-open Notty.Infix
-
 module Player = struct
   type t =
     { name: string }
@@ -30,7 +27,7 @@ module Item = struct
 
     let symbol = "·"
 
-    let fg r = Notty.A.white
+    let fg _ = Notty.A.white
 
     let draw r =
       Notty.I.string (Notty.A.fg (fg r)) symbol
@@ -41,9 +38,6 @@ module Item = struct
 
   type t =
     | Rock of Rock.t
-
-  let symbol = function
-    | Rock r -> Rock.symbol
 
   let draw = function
     | Some Rock r -> Rock.draw r
@@ -72,7 +66,7 @@ module Items = struct
   let draw l =
     match l with
     | [] | [_] -> Item.draw None
-    | hd :: tl -> Item.draw hd
+    | hd :: _ -> Item.draw hd
 
   let to_string l =
     let rec ts acc l s se =
@@ -135,7 +129,7 @@ module Entity = struct
 
     let make_player r n =
       match r.player with
-      | Some p -> Error "Already a player"
+      | Some _ -> Error "Already a player"
       | _ -> Ok (create ~age:r.age ~nature:r.nature ~player:(Player.create ~name:n) ~inventory:r.inventory)
 
     let is_player r =
@@ -227,7 +221,7 @@ module Entity = struct
     | None -> Notty.I.char Notty.A.empty ' ' 1 1
 
   let is_human = function
-    | Some Human r -> true
+    | Some Human _ -> true
     | _ -> false
 
   let make_player n = function
@@ -281,7 +275,7 @@ module World = struct
     match cells with
     | [] | [_] -> Error "Player cell not found"
     | hd :: tl ->
-      let (coord,node) = hd in
+      let (_,node) = hd in
       if (Entity.is_specific_player name node.entity) then
         Ok hd
       else
@@ -311,7 +305,7 @@ module World = struct
     Notty.I.tabulate x y (fun n m ->
         let node = List.assoc (n,m) w.cells in
         match node.entity with
-        | Some e -> Entity.draw node.entity
+        | Some _ -> Entity.draw node.entity
         | None -> Items.draw node.items
       )
 
@@ -323,7 +317,7 @@ module World = struct
       Printf.eprintf "No player found: %s\n" s;
       exit 1
     | Ok r ->
-      let (coord,node) = r in
+      let (coord,_) = r in
       let (c_x,c_y) = coord in
       let diff_x = c_x - 20 in
       let diff_y = c_y - 10 in
@@ -336,7 +330,7 @@ module World = struct
       Notty.I.tabulate (calc_draw_size draw_x max_x 40) (calc_draw_size draw_y max_y 20) (fun n m ->
           let node = List.assoc ((n + draw_x),(m + draw_y)) w.cells in
           match node.entity with
-          | Some e -> Entity.draw node.entity
+          | Some _ -> Entity.draw node.entity
           | None -> Items.draw node.items
         )
 
@@ -348,7 +342,7 @@ module World = struct
     | Up -> if (cy - 1) < 0 then None else Some (cx,(cy - 1))
     | Down -> if (cy + 1) < max_y then None else Some (cx,(cy + 1))
 
-  let update_cell cell cells w_size =
+  let update_cell cell cells =
     let rec cells_after cell cells =
       match cells with
       | [] -> []
@@ -379,8 +373,8 @@ module World = struct
         | Some _ -> w
         | None ->
           let udn = {entity = pn.entity;items = dn.items} in
-          let cells = (update_cell (c,udn)  w.cells w.size) in
-          let cells = (update_cell (pc,upn) cells w.size) in
+          let cells = (update_cell (c,udn)  w.cells) in
+          let cells = (update_cell (pc,upn) cells) in
           {size = w.size;cells = cells}
         end
       end
@@ -407,12 +401,12 @@ module World = struct
       match Entity.make_player p n.entity with
       | Ok ne ->
         let nn = {entity = Some ne; items = n.items;} in
-        let cells = (update_cell (c,nn) w.cells w.size ) in
+        let cells = (update_cell (c,nn) w.cells) in
         Ok {size = w.size;cells = cells}
       | Error s -> Error s
 
   let render t wi =
-    let (fdi,fdo) = Notty_unix.Term.fds t in
+    let (_,fdo) = Notty_unix.Term.fds t in
     let oc = Unix.out_channel_of_descr fdo in
     let (term_x,term_y) = Notty_unix.Term.size t in
     let image_x = Notty.I.width wi in
@@ -461,7 +455,6 @@ let game_loop world =
   event_loop term world player
 
 let run_game mode =
-  let open Core.Command in
   Random.self_init ();
   let world = World.create 128 128 in
   let world =
