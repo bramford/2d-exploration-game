@@ -1,0 +1,17 @@
+opam-version: "1.2"
+name: "2d-exploration-game"
+version: "0.1.0"
+maintainer: "Bramford Horton <bram.horton@gmail.com>"
+authors: "Bramford Horton <bram.horton@gmail.com>"
+homepage: "https://github.com/bramford/2d-exploration-game"
+bug-reports: "https://github.com/bramford/2d-exploration-game/issues"
+license: "ISC"
+dev-repo: "https://github.com/bramford/2d-exploration-game"
+build: ["dune" "build"]
+install: ["dune" "install"]
+remove: ["ocamlfind" "remove" "2d-exploration-game"]
+depends: [
+  "core"
+  "notty"
+  "ocamlfind"
+]

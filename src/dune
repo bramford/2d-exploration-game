@@ -1,0 +1,4 @@
+(executable
+  (name game)
+  (public_name 2d-exploration-game)
+  (libraries core notty notty.unix))

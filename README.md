@@ -7,8 +7,8 @@ It is intended to be a learning project and in time will hopefully serve as an e
 
 ## Build and Launch
 
-1. Run `./build.sh` to install dependencies and build
-2. Run `./src/_build/default/game.exe` to launch the game
+1. Build `dune build @install`
+2. Launch `2d-exploration-game`
 
 ## How to Play
 
