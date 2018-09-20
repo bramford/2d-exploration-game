@@ -44,6 +44,7 @@ It is intended to be a learning project and in time will hopefully serve as an e
 - [ ] Key binding configuration
 - [ ] Terrain
 - [ ] Turns
+- [ ] Optional high-res mode using GL
 
 ## OCaml Program Notes
 
@@ -56,15 +57,16 @@ For those interested in how this program is written/structured:
 * World is stored in a _list_ with items referenced via _association_
 * Everything is immutable
 * Modules are used and inherited
-* _result_ and _option_ types are used heavily to avoid _Exceptions_ where possible
+* _result_ and _option_ types are used heavily to avoid _exceptions_ where possible
 * No use of imperative language features
 
 ### Program Improvement Ideas
 
 - [ ] Refactor randomness which is not really _random_
-- [ ] Use a better suited container (other than _list_) for World
-- [ ] Move modules to their own source files
-- [ ] Define and use module interfaces
+- [ ] Use a better suited container (other than _list association_) for World
+- [x] Move modules to their own source files
+- [x] Define and use module interfaces
+- [ ] Use functors to generate various types/modules
 - [ ] Refactor rendering logic which feels a bit clunky
 - [ ] Logging with levels and UI/file output
 
