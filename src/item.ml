@@ -1,9 +1,13 @@
-module Rock = Item_rock
+module Rock = Item_lib.Make(struct
+    let symbol = "."
+    let name = "Rock"
+  end)
+
 type t =
   | Rock of Rock.t
 
 let draw = function
-  | Some Rock r -> Rock.draw r
+  | Some Rock _ -> Rock.draw
   | None -> Notty.I.char Notty.A.empty ' ' 1 1
 
 let to_string = function
@@ -11,6 +15,7 @@ let to_string = function
   | None -> "None"
 
 let random i =
-  if i mod 1000 < 11 then
+  match i mod 1000 with
+  | x when x < 5 ->
     Some (Rock (Rock.create ~weight:((Random.int 4) + 1)))
-  else None
+  | _ -> None

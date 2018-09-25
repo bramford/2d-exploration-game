@@ -1,4 +1,3 @@
-module Item = Item
 type t = Item.t option list
 
 let random i =
