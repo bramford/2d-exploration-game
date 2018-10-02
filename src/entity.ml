@@ -1,5 +1,6 @@
-module Human = Entity_human
 module Tree = Entity_tree
+module Human = Entity_human
+
 type t =
   | Human of Human.t
   | Tree of Tree.t

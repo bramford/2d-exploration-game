@@ -1,6 +1,4 @@
-module Human = Entity_human
-module Tree = Entity_tree
-type t = Human of Human.t | Tree of Tree.t
+type t
 val to_string : t option -> string
 val fg : t -> Notty.A.color
 val draw : t option -> Notty.image
