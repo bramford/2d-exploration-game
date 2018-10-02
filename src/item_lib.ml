@@ -1,4 +1,3 @@
-(** Item creation functors and signatures **)
 module type P = sig
   val symbol : string
   val name : string
